@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Version>25.271.1</Version>
+    <Authors>Shun</Authors>
+    <Product>Extend</Product>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Description>扩展工具：Rpc（基于DotNetty实现的RPC，远程过程调用）</Description>
+    <PackageProjectUrl>https://shunnet.top</PackageProjectUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <AuthorsName>Shun</AuthorsName>
+    <CompanyName>Snet</CompanyName>
+    <AccelerateBuildsInVisualStudio>True</AccelerateBuildsInVisualStudio>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\icon.png" Pack="true" PackagePath="\" />
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="DotNetty.Codecs" Version="0.7.6" />
+    <PackageReference Include="ImpromptuInterface" Version="8.0.6" />
+    <PackageReference Include="Snet.Core" Version="25.271.1" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Snet.RPC.Client.Samples/Snet.RPC.Client.Samples.csproj" />
+  <Project Path="Snet.RPC.Service.Samples/Snet.RPC.Service.Samples.csproj" />
+  <Project Path="Snet.Rpc/Snet.Rpc.csproj" />
+</Solution>
