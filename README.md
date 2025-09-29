@@ -146,15 +146,6 @@ public class Hello : IHello
 }
 ```
 
-
-## 🔧 进阶说明
-
-- **序列化优化**：推荐使用 **Protobuf** 降低带宽占用  
-- **安全性**：生产环境启用 **TLS**，并增加 **Token 鉴权**  
-- **错误与重试**：客户端支持 **指数退避重试**  
-- **可扩展点**：自定义拦截器（Interceptor）、路由策略、负载均衡器  
-
-
 ## 🙏 致谢
 
 - 🌐 [Shunnet.top](https://shunnet.top)  
