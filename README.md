@@ -48,6 +48,14 @@
 > 项目已内置 **服务端/客户端样例**：  
 > `Snet.RPC.Service.Samples` 与 `Snet.RPC.Client.Samples`。
 
+### 📦 安装方式  
+
+通过 NuGet 获取：  
+
+```bash
+dotnet add package Snet.Rpc
+```
+
 ### 服务端示例
 
 ```csharp
