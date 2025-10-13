@@ -318,7 +318,7 @@ namespace Snet.Rpc.service
         }
 
         /// <inheritdoc/>
-        public override async Task DisposeAsync()
+        public override async ValueTask DisposeAsync()
         {
             Close();
             await base.DisposeAsync();

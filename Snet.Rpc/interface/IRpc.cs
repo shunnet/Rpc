@@ -7,7 +7,7 @@ namespace Snet.Rpc.@interface
     /// <summary>
     /// RPC接口
     /// </summary>
-    public interface IRpc : IDisposable
+    public interface IRpc : IDisposable, IAsyncDisposable
     {
         /// <summary>
         /// 注册
