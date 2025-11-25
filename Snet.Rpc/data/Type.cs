@@ -1,4 +1,6 @@
-﻿namespace Snet.Rpc.data
+﻿using System.Text.Json.Serialization;
+
+namespace Snet.Rpc.data
 {
     /// <summary>
     /// 类型
@@ -15,6 +17,7 @@
     /// <summary>
     /// 类型枚举
     /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Types
     {
         /// <summary>
