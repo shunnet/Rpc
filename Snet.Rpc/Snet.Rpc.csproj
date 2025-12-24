@@ -3,7 +3,7 @@
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>25.329.1</Version>
+    <Version>25.357.1</Version>
     <Authors>Shun</Authors>
     <Product>Extend</Product>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -24,6 +24,6 @@
   <ItemGroup>
     <PackageReference Include="DotNetty.Codecs" Version="0.7.6" />
     <PackageReference Include="ImpromptuInterface" Version="8.0.6" />
-    <PackageReference Include="Snet.Core" Version="25.329.1" />
+    <PackageReference Include="Snet.Core" Version="25.357.1" />
   </ItemGroup>
 </Project>
