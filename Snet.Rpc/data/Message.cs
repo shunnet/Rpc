@@ -2,6 +2,9 @@
 
 namespace Snet.Rpc.data
 {
+    /// <summary>
+    /// RPC 消息数据模型，用于在客户端与服务端之间传递通知性消息（如连接状态变更、认证结果等）。
+    /// </summary>
     public class Message
     {
         /// <summary>

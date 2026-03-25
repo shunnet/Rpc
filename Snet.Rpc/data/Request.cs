@@ -1,7 +1,8 @@
 ﻿namespace Snet.Rpc.data
 {
     /// <summary>
-    /// 请求的数据类型
+    /// RPC 请求数据模型，封装远程方法调用的接口名称、方法名称和参数列表。
+    /// <para>由客户端动态代理 <see cref="Snet.Rpc.unility.Proxy"/> 构建，通过 DotNetty 通道发送到远端。</para>
     /// </summary>
     public class Request
     {

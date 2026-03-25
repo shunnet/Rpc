@@ -19,46 +19,62 @@ using static Snet.Rpc.data.Client;
 namespace Snet.Rpc.client
 {
     /// <summary>
-    /// RPC客户端
+    /// RPC 客户端<br/>
+    /// <br/>
+    /// 功能：<br/>
+    /// - 基于 DotNetty 实现高性能 TCP RPC 通信<br/>
+    /// - 支持接口代理透明调用远程服务<br/>
+    /// - 支持身份认证和接口注册<br/>
+    /// - 支持同步等待异步响应
     /// </summary>
     public class RpcClient : CoreUnify<RpcClient, Basics>, IRpc
     {
         /// <summary>
         /// 有参构造函数
         /// </summary>
-        /// <param name="basics">基础数据</param>
+        /// <param name="basics">基础数据（包含服务器地址、端口、账号密码等）</param>
         public RpcClient(Basics basics) : base(basics) { }
 
         /// <summary>
-        /// Netty 客户端
+        /// DotNetty Bootstrap 客户端实例
         /// </summary>
         private Bootstrap? client;
+
         /// <summary>
-        /// 客户端组
+        /// 客户端事件循环组（管理 I/O 线程）
         /// </summary>
         private MultithreadEventLoopGroup? ClientGroup;
+
         /// <summary>
-        /// 通道
+        /// 与服务端的通信通道
         /// </summary>
         private IChannel? Channel;
+
         /// <summary>
-        /// 创建
+        /// 已创建的接口代理缓存（按接口名索引）
         /// </summary>
         private ConcurrentDictionary<string, object> creates { get; } = new ConcurrentDictionary<string, object>();
+
         /// <summary>
-        /// 注册
+        /// 接口注册表（接口名称 -> 实现类型）
         /// </summary>
         private Dictionary<string, System.Type> iRegister { get; set; } = new Dictionary<string, System.Type>();
+
         /// <summary>
-        /// 任务等待
+        /// 异步等待管理器（管理请求/响应的同步等待）
         /// </summary>
         private Await Await = new Await();
+
         /// <summary>
-        /// 认证标识
+        /// 身份认证标识（用于匹配认证响应）
         /// </summary>
         private string AuthenticationTag = Guid.NewGuid().ToUpperNString();
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// 打开 RPC 客户端连接<br/>
+        /// 创建 TCP 连接并发送身份认证请求，等待服务端认证响应
+        /// </summary>
+        /// <returns>操作结果</returns>
         public OperateResult Open()
         {
             BegOperate();
@@ -105,7 +121,12 @@ namespace Snet.Rpc.client
                 return EndOperate(false, ex.Message, ex);
             }
         }
-        /// <inheritdoc/>
+        /// <summary>
+        /// 关闭 RPC 客户端连接<br/>
+        /// 优雅关闭事件循环组并释放通道资源
+        /// </summary>
+        /// <param name="HardClose">是否强制关闭（跳过状态检查）</param>
+        /// <returns>操作结果</returns>
         public OperateResult Close(bool HardClose = false)
         {
             BegOperate();
@@ -130,7 +151,12 @@ namespace Snet.Rpc.client
                 return EndOperate(false, ex.Message, ex);
             }
         }
-        /// <inheritdoc/>
+        /// <summary>
+        /// 创建接口代理对象<br/>
+        /// 通过动态代理透明调用远程服务方法，自动缓存已创建的代理
+        /// </summary>
+        /// <typeparam name="T">目标接口类型</typeparam>
+        /// <returns>接口代理实例</returns>
         public T Create<T>() where T : class
         {
             T cre = null;
@@ -159,7 +185,13 @@ namespace Snet.Rpc.client
             }
             return cre;
         }
-        /// <inheritdoc/>
+        /// <summary>
+        /// 注册接口与实现类的映射关系<br/>
+        /// 用于服务端请求时的反射调用
+        /// </summary>
+        /// <typeparam name="I">接口类型</typeparam>
+        /// <typeparam name="O">实现类型</typeparam>
+        /// <returns>操作结果</returns>
         public OperateResult Register<I, O>()
         {
             BegOperate();
@@ -173,7 +205,12 @@ namespace Snet.Rpc.client
                 return EndOperate(false, ex.Message, ex);
             }
         }
-        /// <inheritdoc/>
+        /// <summary>
+        /// 处理服务端响应数据<br/>
+        /// 根据消息类型分发：请求、响应、认证、消息
+        /// </summary>
+        /// <param name="data">接收到的字节缓冲区</param>
+        /// <param name="channel">通信通道</param>
         public void Response(IByteBuffer data, IChannel channel)
         {
             //实例化返回信息
@@ -252,7 +289,10 @@ namespace Snet.Rpc.client
                 channel.WriteAndFlushAsync(Unpooled.WrappedBuffer(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message))));
             }
         }
-        /// <inheritdoc/>
+        /// <summary>
+        /// 处理异常信息，招出事件并释放资源
+        /// </summary>
+        /// <param name="ex">异常对象</param>
         public void Exception(Exception ex)
         {
             OnInfoEventHandler(this, new EventInfoResult(false, ex.Message));

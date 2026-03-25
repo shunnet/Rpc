@@ -1,7 +1,7 @@
 ﻿namespace Snet.Rpc.data
 {
     /// <summary>
-    /// 等待传递数据
+    /// RPC 等待传递数据模型，封装 <see cref="AutoResetEvent"/> 同步信号和响应结果字符串，用于请求-响应的同步等待机制。
     /// </summary>
     public class AwaitData
     {

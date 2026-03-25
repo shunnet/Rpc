@@ -4,7 +4,7 @@ using Snet.Rpc.unility;
 namespace Snet.Rpc.data
 {
     /// <summary>
-    /// 代理数据
+    /// RPC 动态代理数据容器，包含代理运行所需的基础数据（通道、接口名称、类型信息等）。
     /// </summary>
     public class ProxyData
     {

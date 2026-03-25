@@ -2,6 +2,9 @@
 
 namespace Snet.Rpc.data
 {
+    /// <summary>
+    /// RPC 客户端数据配置类
+    /// </summary>
     public class Client
     {
         /// <summary>

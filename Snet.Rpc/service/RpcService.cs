@@ -18,53 +18,66 @@ using static Snet.Rpc.data.Service;
 namespace Snet.Rpc.service
 {
     /// <summary>
-    /// RPC服务端
+    /// RPC 服务端<br/>
+    /// <br/>
+    /// 功能：<br/>
+    /// - 基于 DotNetty 实现高性能 TCP RPC 服务<br/>
+    /// - 支持客户端身份认证（账号密码 + 唯一标识 + 接口校验）<br/>
+    /// - 支持接口注册、反射调用和代理创建<br/>
+    /// - 多客户端并发管理
     /// </summary>
     public class RpcService : CoreUnify<RpcService, Basics>, IRpc
     {
         /// <summary>
         /// 有参构造函数
         /// </summary>
-        /// <param name="basics">基础数据</param>
+        /// <param name="basics">基础数据（包含端口、账号密码、客户端信息等）</param>
         public RpcService(Basics basics) : base(basics) { }
 
         /// <summary>
-        /// Netty 服务
+        /// DotNetty ServerBootstrap 服务端实例
         /// </summary>
         private ServerBootstrap? server;
 
         /// <summary>
-        /// 客户端组
+        /// 连接接受事件循环组（Boss Group）
         /// </summary>
         private MultithreadEventLoopGroup? ClientGroup;
 
         /// <summary>
-        /// 客户端消息组
+        /// 消息处理事件循环组（Worker Group）
         /// </summary>
         private MultithreadEventLoopGroup? ClientMessageGroup;
 
         /// <summary>
-        /// 通道
+        /// 服务端监听通道
         /// </summary>
         private IChannel? Channel;
+
         /// <summary>
-        /// 注册
+        /// 接口注册表（接口名称 -> 实现类型）
         /// </summary>
         private Dictionary<string, System.Type> iRegister { get; set; } = new Dictionary<string, System.Type>();
+
         /// <summary>
-        /// 创建
+        /// 已创建的接口代理缓存（按接口名索引）
         /// </summary>
         private ConcurrentDictionary<string, object> creates { get; } = new ConcurrentDictionary<string, object>();
+
         /// <summary>
-        /// 客户端信息
-        /// 接口名，通道
+        /// 已认证的客户端信息（接口名称列表 -> 通道）
         /// </summary>
         public ConcurrentDictionary<List<Details>, IChannel> clients = new ConcurrentDictionary<List<Details>, IChannel>();
+
         /// <summary>
-        /// 任务等待
+        /// 异步等待管理器（管理请求/响应的同步等待）
         /// </summary>
         private Await Await = new Await();
-        /// <inheritdoc/>
+        /// <summary>
+        /// 打开 RPC 服务端<br/>
+        /// 创建 ServerBootstrap 并绑定监听端口
+        /// </summary>
+        /// <returns>操作结果</returns>
         public OperateResult Open()
         {
             BegOperate();
@@ -99,7 +112,12 @@ namespace Snet.Rpc.service
                 return EndOperate(false, ex.Message, ex);
             }
         }
-        /// <inheritdoc/>
+        /// <summary>
+        /// 关闭 RPC 服务端<br/>
+        /// 优雅关闭事件循环组并释放通道资源
+        /// </summary>
+        /// <param name="HardClose">是否强制关闭（跳过状态检查）</param>
+        /// <returns>操作结果</returns>
         public OperateResult Close(bool HardClose = false)
         {
             BegOperate();
@@ -126,7 +144,12 @@ namespace Snet.Rpc.service
                 return EndOperate(false, ex.Message, ex);
             }
         }
-        /// <inheritdoc/>
+        /// <summary>
+        /// 创建接口代理对象<br/>
+        /// 通过客户端认证信息检索对应通道，创建动态代理
+        /// </summary>
+        /// <typeparam name="T">目标接口类型</typeparam>
+        /// <returns>接口代理实例</returns>
         public T Create<T>() where T : class
         {
             T cre = null;
@@ -158,7 +181,13 @@ namespace Snet.Rpc.service
 
             return cre;
         }
-        /// <inheritdoc/>
+        /// <summary>
+        /// 注册接口与实现类的映射关系<br/>
+        /// 用于客户端请求时的反射调用
+        /// </summary>
+        /// <typeparam name="I">接口类型</typeparam>
+        /// <typeparam name="O">实现类型</typeparam>
+        /// <returns>操作结果</returns>
         public OperateResult Register<I, O>()
         {
             BegOperate();
@@ -172,7 +201,12 @@ namespace Snet.Rpc.service
                 return EndOperate(false, ex.Message, ex);
             }
         }
-        /// <inheritdoc/>
+        /// <summary>
+        /// 处理客户端请求数据<br/>
+        /// 根据消息类型分发：请求、响应、认证、消息
+        /// </summary>
+        /// <param name="data">接收到的字节缓冲区</param>
+        /// <param name="channel">通信通道</param>
         public void Response(IByteBuffer data, IChannel channel)
         {
             //实例化返回信息
@@ -305,7 +339,10 @@ namespace Snet.Rpc.service
                 channel.WriteAndFlushAsync(Unpooled.WrappedBuffer(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message))));
             }
         }
-        /// <inheritdoc/>
+        /// <summary>
+        /// 处理异常信息，招出异常事件
+        /// </summary>
+        /// <param name="ex">异常对象</param>
         public void Exception(Exception ex)
         {
             OnInfoEventHandler(this, new EventInfoResult(false, ex.Message));

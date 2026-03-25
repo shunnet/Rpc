@@ -3,7 +3,8 @@
 namespace Snet.Rpc.data
 {
     /// <summary>
-    /// 响应
+    /// RPC 响应数据模型，封装远程方法调用的返回结果（状态、信息、数据及时间戳）。
+    /// <para>由远端处理请求后构建，通过 DotNetty 通道返回给调用方。</para>
     /// </summary>
     public class Response
     {

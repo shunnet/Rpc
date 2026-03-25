@@ -3,7 +3,7 @@
 namespace Snet.Rpc.data
 {
     /// <summary>
-    /// 类型
+    /// RPC 消息类型基类，所有 RPC 数据模型（请求、响应、认证、消息）均包含 <see cref="Types"/> TAG 标识，用于反序列化时区分消息类型。
     /// </summary>
     public class Type
     {

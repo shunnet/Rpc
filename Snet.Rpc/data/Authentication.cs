@@ -1,7 +1,8 @@
 ﻿namespace Snet.Rpc.data
 {
     /// <summary>
-    /// 身份认证
+    /// RPC 身份认证数据模型，客户端连接时发送给服务端进行身份验证。
+    /// <para>包含用户名、密码、唯一标识 (ISn) 和可提供的接口列表 (INs)。</para>
     /// </summary>
     public class Authentication
     {

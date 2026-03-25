@@ -3,7 +3,7 @@
 namespace Snet.Rpc.data
 {
     /// <summary>
-    /// 详情
+    /// RPC 接口详情数据模型，用于身份认证时描述客户端可提供的接口信息。
     /// </summary>
     public class Details
     {
