@@ -10,7 +10,7 @@
 
 <p align="center">
 
-  <img src="<img src="https://img.shields.io/badge/.NET-8.0%20%7C%2010.0-purple.svg"/>"/>
+  <img src="https://img.shields.io/badge/.NET-8.0%20%7C%2010.0-purple.svg"/>
   <img src="https://img.shields.io/badge/license-MIT-green"/>
   <img src="https://img.shields.io/github/stars/shunnet/Rpc?style=social"/>
 
