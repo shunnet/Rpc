@@ -70,19 +70,15 @@ namespace Snet.Rpc.client
         /// </summary>
         private string AuthenticationTag = Guid.NewGuid().ToUpperNString();
 
-        /// <summary>
-        /// 打开 RPC 客户端连接<br/>
-        /// 创建 TCP 连接并发送身份认证请求，等待服务端认证响应
-        /// </summary>
-        /// <returns>操作结果</returns>
-        public OperateResult Open()
+        /// <inheritdoc/>
+        public async Task<OperateResult> OpenAsync(CancellationToken token = default)
         {
-            BegOperate();
+            await BegOperateAsync(token);
             try
             {
                 if (client != null)
                 {
-                    return EndOperate(false, "已打开");
+                    return await EndOperateAsync(false, "已打开", token: token);
                 }
                 client = new Bootstrap()
                .Group(ClientGroup = new MultithreadEventLoopGroup())
@@ -95,11 +91,11 @@ namespace Snet.Rpc.client
                    pipeline.AddLast("framing-dec", new LengthFieldBasedFrameDecoder(int.MaxValue, 0, 8, 0, 8));
                    pipeline.AddLast(new RpcClientHandler(this));
                }));
-                Channel = client.ConnectAsync(new IPEndPoint(IPAddress.Parse(basics.IpAddress), basics.Port)).ConfigureAwait(false).GetAwaiter().GetResult();
+                Channel = await client.ConnectAsync(new IPEndPoint(IPAddress.Parse(basics.IpAddress), basics.Port));
                 //发送身份认证
                 Await.Start(AuthenticationTag);
 
-                Channel.WriteAndFlushAsync(Unpooled.WrappedBuffer(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new Authentication()
+                await Channel.WriteAndFlushAsync(Unpooled.WrappedBuffer(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new Authentication()
                 {
                     UserName = basics.UserName,
                     Password = basics.Password,
@@ -110,45 +106,40 @@ namespace Snet.Rpc.client
                 Message? response = JsonConvert.DeserializeObject<Message>(Await.Wait(AuthenticationTag).resultData);
                 if (response == null)
                 {
-                    Close(true);
-                    return EndOperate(false, "服务器未响应认证信息");
+                    await CloseAsync(true, token: token);
+                    return await EndOperateAsync(false, "服务器未响应认证信息", token: token);
                 }
-                return EndOperate(response.State, response.Info);
+                return await EndOperateAsync(response.State, response.Info, token: token);
             }
             catch (Exception ex)
             {
-                Close(true);
-                return EndOperate(false, ex.Message, ex);
+                await CloseAsync(true, token: token);
+                return await EndOperateAsync(false, ex.Message, ex, token: token);
             }
         }
-        /// <summary>
-        /// 关闭 RPC 客户端连接<br/>
-        /// 优雅关闭事件循环组并释放通道资源
-        /// </summary>
-        /// <param name="HardClose">是否强制关闭（跳过状态检查）</param>
-        /// <returns>操作结果</returns>
-        public OperateResult Close(bool HardClose = false)
+        /// <inheritdoc/>
+        public async Task<OperateResult> CloseAsync(bool hardClose = false, CancellationToken token = default)
         {
-            BegOperate();
+            await BegOperateAsync(token);
             try
             {
-                if (!HardClose)
+                if (!hardClose)
                 {
                     if (client == null)
                     {
-                        return EndOperate(false, "未打开");
+                        return await EndOperateAsync(false, "未打开", token: token);
                     }
                 }
-                ClientGroup?.ShutdownGracefullyAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                Channel?.CloseAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                Channel?.DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                await ClientGroup?.ShutdownGracefullyAsync();
+                await Channel?.CloseAsync();
+                await Channel?.DisconnectAsync();
                 client = null;
 
-                return EndOperate(true);
+                return await EndOperateAsync(true, token: token);
             }
             catch (Exception ex)
             {
-                return EndOperate(false, ex.Message, ex);
+                return await EndOperateAsync(false, ex.Message, ex, token: token);
             }
         }
         /// <summary>
@@ -185,24 +176,19 @@ namespace Snet.Rpc.client
             }
             return cre;
         }
-        /// <summary>
-        /// 注册接口与实现类的映射关系<br/>
-        /// 用于服务端请求时的反射调用
-        /// </summary>
-        /// <typeparam name="I">接口类型</typeparam>
-        /// <typeparam name="O">实现类型</typeparam>
-        /// <returns>操作结果</returns>
-        public OperateResult Register<I, O>()
+
+        /// <inheritdoc/>
+        public async Task<OperateResult> RegisterAsync<I, O>(CancellationToken token = default)
         {
-            BegOperate();
+            await BegOperateAsync(token);
             try
             {
                 iRegister.Add(typeof(I).Name, typeof(O));
-                return EndOperate(true);
+                return await EndOperateAsync(true, token: token);
             }
             catch (Exception ex)
             {
-                return EndOperate(false, ex.Message, ex);
+                return await EndOperateAsync(false, ex.Message, ex, token: token);
             }
         }
         /// <summary>
@@ -301,14 +287,14 @@ namespace Snet.Rpc.client
         /// <inheritdoc/>
         public override void Dispose()
         {
-            Close();
+            CloseAsync().GetAwaiter().GetResult();
             base.Dispose();
         }
 
         /// <inheritdoc/>
         public override async ValueTask DisposeAsync()
         {
-            Close();
+            await CloseAsync();
             await base.DisposeAsync();
         }
     }

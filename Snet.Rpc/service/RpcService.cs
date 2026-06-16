@@ -73,19 +73,15 @@ namespace Snet.Rpc.service
         /// 异步等待管理器（管理请求/响应的同步等待）
         /// </summary>
         private Await Await = new Await();
-        /// <summary>
-        /// 打开 RPC 服务端<br/>
-        /// 创建 ServerBootstrap 并绑定监听端口
-        /// </summary>
-        /// <returns>操作结果</returns>
-        public OperateResult Open()
+        /// <inheritdoc/>
+        public async Task<OperateResult> OpenAsync(CancellationToken token = default)
         {
-            BegOperate();
+            await BegOperateAsync(token);
             try
             {
                 if (server != null)
                 {
-                    return EndOperate(false, "已打开");
+                    return await EndOperateAsync(false, "已打开", token: token);
                 }
 
                 //实例化服务
@@ -101,47 +97,42 @@ namespace Snet.Rpc.service
                         pipeline.AddLast(new RpcServiceHandler(this));
                     }));
 
-                Channel = server.BindAsync(basics.Port).ConfigureAwait(false).GetAwaiter().GetResult();
+                Channel = await server.BindAsync(basics.Port);
 
-                return EndOperate(true);
+                return await EndOperateAsync(true, token: token);
 
             }
             catch (Exception ex)
             {
-                Close(true);
-                return EndOperate(false, ex.Message, ex);
+                await CloseAsync(true, token: token);
+                return await EndOperateAsync(false, ex.Message, ex, token: token);
             }
         }
-        /// <summary>
-        /// 关闭 RPC 服务端<br/>
-        /// 优雅关闭事件循环组并释放通道资源
-        /// </summary>
-        /// <param name="HardClose">是否强制关闭（跳过状态检查）</param>
-        /// <returns>操作结果</returns>
-        public OperateResult Close(bool HardClose = false)
+        /// <inheritdoc/>
+        public async Task<OperateResult> CloseAsync(bool hardClose = false, CancellationToken token = default)
         {
-            BegOperate();
+            await BegOperateAsync(token);
             try
             {
-                if (!HardClose)
+                if (!hardClose)
                 {
                     if (server == null)
                     {
-                        return EndOperate(false, "未打开");
+                        return await EndOperateAsync(false, "未打开", token: token);
                     }
                 }
 
-                ClientGroup?.ShutdownGracefullyAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                ClientMessageGroup?.ShutdownGracefullyAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                Channel?.CloseAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                Channel?.DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                await ClientGroup?.ShutdownGracefullyAsync();
+                await ClientMessageGroup?.ShutdownGracefullyAsync();
+                await Channel?.CloseAsync();
+                await Channel?.DisconnectAsync();
                 server = null;
 
-                return EndOperate(true);
+                return await EndOperateAsync(true, token: token);
             }
             catch (Exception ex)
             {
-                return EndOperate(false, ex.Message, ex);
+                return await EndOperateAsync(false, ex.Message, ex, token: token);
             }
         }
         /// <summary>
@@ -181,24 +172,18 @@ namespace Snet.Rpc.service
 
             return cre;
         }
-        /// <summary>
-        /// 注册接口与实现类的映射关系<br/>
-        /// 用于客户端请求时的反射调用
-        /// </summary>
-        /// <typeparam name="I">接口类型</typeparam>
-        /// <typeparam name="O">实现类型</typeparam>
-        /// <returns>操作结果</returns>
-        public OperateResult Register<I, O>()
+        /// <inheritdoc/>
+        public async Task<OperateResult> RegisterAsync<I, O>(CancellationToken token = default)
         {
-            BegOperate();
+            await BegOperateAsync(token);
             try
             {
                 iRegister.Add(typeof(I).Name, typeof(O));
-                return EndOperate(true);
+                return await EndOperateAsync(true, token: token);
             }
             catch (Exception ex)
             {
-                return EndOperate(false, ex.Message, ex);
+                return await EndOperateAsync(false, ex.Message, ex, token: token);
             }
         }
         /// <summary>
@@ -350,14 +335,14 @@ namespace Snet.Rpc.service
         /// <inheritdoc/>
         public override void Dispose()
         {
-            Close();
+            CloseAsync().GetAwaiter().GetResult();
             base.Dispose();
         }
 
         /// <inheritdoc/>
         public override async ValueTask DisposeAsync()
         {
-            Close();
+            await CloseAsync();
             await base.DisposeAsync();
         }
     }

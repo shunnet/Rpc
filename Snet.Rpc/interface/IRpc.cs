@@ -15,8 +15,24 @@ namespace Snet.Rpc.@interface
         /// </summary>
         /// <typeparam name="I">接口类型</typeparam>
         /// <typeparam name="O">实现类型</typeparam>
+        /// <param name="token">取消通知</param>
         /// <returns>操作结果</returns>
-        OperateResult Register<I, O>();
+        Task<OperateResult> RegisterAsync<I, O>(CancellationToken token = default);
+
+        /// <summary>
+        /// 打开 RPC 连接
+        /// </summary>
+        /// <param name="token">取消通知</param>
+        /// <returns>操作结果</returns>
+        Task<OperateResult> OpenAsync(CancellationToken token = default);
+
+        /// <summary>
+        /// 关闭 RPC 连接
+        /// </summary>
+        /// <param name="hardClose">是否强制关闭</param>
+        /// <param name="token">取消通知</param>
+        /// <returns>操作结果</returns>
+        Task<OperateResult> CloseAsync(bool hardClose = false, CancellationToken token = default);
 
         /// <summary>
         /// 创建接口代理对象，用于透明调用远程服务方法
@@ -24,19 +40,6 @@ namespace Snet.Rpc.@interface
         /// <typeparam name="T">目标接口类型</typeparam>
         /// <returns>接口代理实例</returns>
         T Create<T>() where T : class;
-
-        /// <summary>
-        /// 打开 RPC 连接
-        /// </summary>
-        /// <returns>操作结果</returns>
-        OperateResult Open();
-
-        /// <summary>
-        /// 关闭 RPC 连接
-        /// </summary>
-        /// <param name="HardClose">是否强制关闭</param>
-        /// <returns>操作结果</returns>
-        OperateResult Close(bool HardClose = false);
 
         /// <summary>
         /// 处理接收到的数据响应
