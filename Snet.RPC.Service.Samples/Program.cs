@@ -20,10 +20,10 @@ RpcService rpvService = RpcService.Instance(new Snet.Rpc.data.Service.Basics
                 }
 });
 
-LogHelper.Info(rpvService.Open().ToJson(true));
+LogHelper.Info((await rpvService.OpenAsync()).ToJson(true));
 
 //注册
-rpvService.Register<IHello, hello>();
+await rpvService.RegisterAsync<IHello, hello>();
 
 
 while (true)

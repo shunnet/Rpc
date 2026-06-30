@@ -16,9 +16,9 @@ RpcClient rpcClient = RpcClient.Instance(new Snet.Rpc.data.Client.Basics
     INs = new List<Snet.Rpc.data.Details> { new Snet.Rpc.data.Details() { INames = "IHello" } },
 });
 
-LogHelper.Info(rpcClient.Open().ToJson(true));
+LogHelper.Info((await rpcClient.OpenAsync()).ToJson(true));
 //注册
-rpcClient.Register<IHello, hello>();
+await rpcClient.RegisterAsync<IHello, hello>();
 
 
 while (true)
