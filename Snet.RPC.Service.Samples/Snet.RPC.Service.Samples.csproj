@@ -7,6 +7,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Snet.Rpc" Version="26.235.2" />
+		<PackageReference Include="Snet.Rpc" Version="26.236.1" />
 	</ItemGroup>
 </Project>
