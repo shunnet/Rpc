@@ -23,7 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DotNetty.Codecs" Version="0.7.6" />
-    <PackageReference Include="ImpromptuInterface" Version="8.0.6" />
+    <PackageReference Include="ImpromptuInterface" Version="8.1.0" />
     <PackageReference Include="Snet.Core" Version="26.256.1" />
   </ItemGroup>
 </Project>
