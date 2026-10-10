@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <PackageReference Include="Snet.Rpc" Version="26.282.1" />
+	  <PackageReference Include="Snet.Rpc" Version="26.283.1" />
   </ItemGroup>
 
 </Project>
